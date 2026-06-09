@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Analyzer</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Hashing" Version="10.0.8" />
+    <PackageReference Include="ZstdSharp.Port" Version="0.8.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\SaveFormat\P2SArchive.cs" Link="P2SArchive.cs" />
+    <Compile Include="..\Game\Psg2Items.cs" Link="Psg2Items.cs" />
+    <Compile Include="..\Game\Psg2Layout.cs" Link="Psg2Layout.cs" />
+    <Compile Include="..\Game\Psg2Character.cs" Link="Psg2Character.cs" />
+    <Compile Include="..\Game\Psg2Save.cs" Link="Psg2Save.cs" />
+  </ItemGroup>
+
+</Project>

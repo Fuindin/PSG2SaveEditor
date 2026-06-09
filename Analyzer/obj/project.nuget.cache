@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "F5FIwWYs6Aw=",
+  "success": true,
+  "projectFilePath": "D:\\Projects\\PSG2SaveEditor\\Analyzer\\Analyzer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\lamin\\.nuget\\packages\\system.io.hashing\\10.0.8\\system.io.hashing.10.0.8.nupkg.sha512",
+    "C:\\Users\\lamin\\.nuget\\packages\\zstdsharp.port\\0.8.8\\zstdsharp.port.0.8.8.nupkg.sha512"
+  ],
+  "logs": []
+}
