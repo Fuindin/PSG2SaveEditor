@@ -31,6 +31,8 @@ partial class MainForm
     private Label _lblEquipHdr, _lblBagHdr, _itemsNote;
     private TableLayoutPanel _equipTable;
     private ListBox _itemList;
+    private Panel _portraitPanel;
+    private PictureBox _picPortrait;
 
     protected override void Dispose(bool disposing)
     {
@@ -77,6 +79,8 @@ partial class MainForm
         _namePanel = new Panel();
         _lblJob = new Label();
         _txtName = new Label();
+        _portraitPanel = new Panel();
+        _picPortrait = new PictureBox();
         _menu.SuspendLayout();
         _header.SuspendLayout();
         _mesetaPanel.SuspendLayout();
@@ -88,6 +92,8 @@ partial class MainForm
         _tabItems.SuspendLayout();
         _tabAllItems.SuspendLayout();
         _namePanel.SuspendLayout();
+        _portraitPanel.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)_picPortrait).BeginInit();
         SuspendLayout();
         // 
         // _menu
@@ -436,13 +442,34 @@ partial class MainForm
         _txtName.Name = "_txtName";
         _txtName.Size = new Size(0, 25);
         _txtName.TabIndex = 1;
-        // 
+        //
+        // _portraitPanel
+        //
+        _portraitPanel.Controls.Add(_picPortrait);
+        _portraitPanel.Dock = DockStyle.Left;
+        _portraitPanel.Location = new Point(346, 188);
+        _portraitPanel.Name = "_portraitPanel";
+        _portraitPanel.Padding = new Padding(14, 16, 14, 16);
+        _portraitPanel.Size = new Size(300, 983);
+        _portraitPanel.TabIndex = 3;
+        //
+        // _picPortrait
+        //
+        _picPortrait.Dock = DockStyle.Fill;
+        _picPortrait.Location = new Point(12, 8);
+        _picPortrait.Name = "_picPortrait";
+        _picPortrait.Size = new Size(280, 927);
+        _picPortrait.SizeMode = PictureBoxSizeMode.Zoom;
+        _picPortrait.TabIndex = 0;
+        _picPortrait.TabStop = false;
+        //
         // MainForm
-        // 
+        //
         AutoScaleDimensions = new SizeF(10F, 25F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(1452, 1171);
         Controls.Add(_rightPanel);
+        Controls.Add(_portraitPanel);
         Controls.Add(_divider);
         Controls.Add(_leftPanel);
         Controls.Add(_lblBanner);
@@ -470,6 +497,8 @@ partial class MainForm
         _tabAllItems.ResumeLayout(false);
         _namePanel.ResumeLayout(false);
         _namePanel.PerformLayout();
+        _portraitPanel.ResumeLayout(false);
+        ((System.ComponentModel.ISupportInitialize)_picPortrait).EndInit();
         ResumeLayout(false);
         PerformLayout();
     }
