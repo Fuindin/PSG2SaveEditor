@@ -27,6 +27,8 @@ public sealed partial class MainForm : Form
     protected override void OnShown(EventArgs e)
     {
         base.OnShown(e);
+        UpdateCharListItemHeight();
+        UpdateTabSize();
 
         if (_pendingOpen is not null)
         {
@@ -34,6 +36,31 @@ public sealed partial class MainForm : Form
             _pendingOpen = null;
             LoadPath(path);
         }
+    }
+
+    protected override void OnDpiChanged(DpiChangedEventArgs e)
+    {
+        base.OnDpiChanged(e);
+        UpdateCharListItemHeight();
+        UpdateTabSize();
+    }
+
+    /// <summary>
+    /// Size the owner-drawn tabs to fit the widest label at the current DPI. The
+    /// tabs are OwnerDrawFixed (every tab shares ItemSize), so a fixed width clipped
+    /// the longest caption ("Stats &amp; Experience") on high-DPI displays.
+    /// </summary>
+    private void UpdateTabSize()
+    {
+        int w = 0, h = 0;
+        foreach (TabPage p in _tabs.TabPages)
+        {
+            Size sz = TextRenderer.MeasureText(p.Text, _tabs.Font);
+            w = Math.Max(w, sz.Width);
+            h = Math.Max(h, sz.Height);
+        }
+
+        _tabs.ItemSize = new Size(w + 28, h + 14);
     }
 
     // ---- Theme & wiring (kept out of the designer file so it stays editable) ----
@@ -96,6 +123,8 @@ public sealed partial class MainForm : Form
         foreach (var p in new[] { _equipTable })
         {
             p.BackColor = Theme.SpacePanel;
+            p.AutoSize = true;                              // grow with DPI-scaled rows
+            p.AutoSizeMode = AutoSizeMode.GrowAndShrink;
         }
 
         _lblEquipHdr.BackColor = _lblBagHdr.BackColor = Theme.SpacePanel;
@@ -202,17 +231,41 @@ public sealed partial class MainForm : Form
         }
 
         var c = _chars[e.Index];
-        var nameRect = new Rectangle(rect.X + 14, rect.Y + 5, rect.Width - 18, 20);
-        var subRect = new Rectangle(rect.X + 14, rect.Y + 23, rect.Width - 18, 16);
+
+        // Derive the two rows from the actual font heights so they scale with DPI
+        // instead of overlapping at >100% (fixed pixel offsets do not scale).
+        using var subFont = Theme.Body(8.5f, FontStyle.Regular);
+        int x = rect.X + 14;
+        int w = rect.Width - 18;
+        int nameH = (int)Math.Ceiling(_lstChars.Font.GetHeight(g));
+        int subH = (int)Math.Ceiling(subFont.GetHeight(g));
+        var nameRect = new Rectangle(x, rect.Y + 5, w, nameH);
+        var subRect = new Rectangle(x, rect.Y + 5 + nameH, w, subH);
 
         TextRenderer.DrawText(g, c.Name, _lstChars.Font, nameRect,
             Theme.TextBright, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
 
         string sub = c.IsRecruited ? $"● in party · {c.Job}" : "○ reserve";
-        using var subFont = Theme.Body(8.5f, FontStyle.Regular);
         TextRenderer.DrawText(g, sub, subFont, subRect,
             c.IsRecruited ? Theme.Cyan : Theme.TextMuted,
             TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+    }
+
+    /// <summary>
+    /// Size each character row to fit both text lines at the current DPI. Called on
+    /// show and on DPI change; the fixed ItemHeight overlapped on high-DPI displays.
+    /// </summary>
+    private void UpdateCharListItemHeight()
+    {
+        if (!_lstChars.IsHandleCreated)
+        {
+            return;
+        }
+
+        using var subFont = Theme.Body(8.5f, FontStyle.Regular);
+        using var g = _lstChars.CreateGraphics();
+        _lstChars.ItemHeight = (int)Math.Ceiling(_lstChars.Font.GetHeight(g) + subFont.GetHeight(g)) + 12;
+        _lstChars.Invalidate();
     }
 
     // ---- Dynamic stat rows (generated from the offset config) ------------
@@ -225,16 +278,20 @@ public sealed partial class MainForm : Form
         _fieldTable.RowCount = _layout.Fields.Count;
         for (int i = 0; i < _layout.Fields.Count; i++)
         {
-            _fieldTable.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
+            // AutoSize rows grow with the (DPI-scaled) font; a fixed pixel height
+            // clipped the labels on high-DPI displays.
+            _fieldTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         }
 
         int row = 0;
         foreach (var f in _layout.Fields)
         {
+            // Anchor=Left (no Top/Bottom) centers the label vertically in the row so
+            // it lines up with the numeric without a fixed top-margin hack.
             var lbl = new Label
             {
                 Text = f.Label, AutoSize = true, Anchor = AnchorStyles.Left,
-                Margin = new Padding(0, 7, 0, 0), ForeColor = Theme.TextBright,
+                Margin = new Padding(0, 4, 12, 4), ForeColor = Theme.TextBright,
                 BackColor = Color.Transparent, Font = Theme.Body(10.5f),
             };
             var num = new NumericUpDown
@@ -244,6 +301,7 @@ public sealed partial class MainForm : Form
                 Width = 140,
                 ThousandsSeparator = f.Max > 9999,
                 Anchor = AnchorStyles.Left,
+                Margin = new Padding(0, 4, 0, 4),
                 Tag = f.Key,
                 Font = Theme.Body(10.5f),
             };
@@ -290,11 +348,13 @@ public sealed partial class MainForm : Form
         int row = 0;
         foreach (var (slot, label) in EquipSlots)
         {
-            _equipTable.RowStyles.Add(new RowStyle(SizeType.Absolute, 28));
+            // AutoSize rows + vertical-centered labels scale with DPI; the fixed
+            // 28px rows overlapped (and mis-spaced) the slots on high-DPI displays.
+            _equipTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             var lblSlot = new Label
             {
                 Text = label, AutoSize = true, Anchor = AnchorStyles.Left,
-                Margin = new Padding(2, 6, 0, 0), ForeColor = Theme.TextMuted,
+                Margin = new Padding(2, 4, 12, 4), ForeColor = Theme.TextMuted,
                 BackColor = Color.Transparent, Font = Theme.Body(10f),
             };
 
@@ -308,7 +368,7 @@ public sealed partial class MainForm : Form
             {
                 Text = text,
                 AutoSize = true, Anchor = AnchorStyles.Left,
-                Margin = new Padding(0, 6, 0, 0), BackColor = Color.Transparent,
+                Margin = new Padding(0, 4, 0, 4), BackColor = Color.Transparent,
                 ForeColor = filled ? Theme.TextBright : Theme.TextMuted,
                 Font = Theme.Body(10f, filled ? FontStyle.Bold : FontStyle.Italic),
             };
