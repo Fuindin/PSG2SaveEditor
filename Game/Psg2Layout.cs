@@ -85,7 +85,7 @@ public sealed class Psg2Layout
             new() { Key = "skill",      Label = "Skill",        Offset = 0x2C, Min = 0, Max = 999 },
         },
         // Canonical PSG2 roster order (matches the in-RAM array). Names/jobs verified
-        // against in-game status screens; Kain and Shir are not yet confirmed.
+        // against in-game status screens
         Members =
         {
             new() { Slot = 0, Name = "Eusis",  Job = "Agent" },
@@ -94,8 +94,8 @@ public sealed class Psg2Layout
             new() { Slot = 3, Name = "Anne",   Job = "Doctor" },
             new() { Slot = 4, Name = "Huey",   Job = "Scholar" },
             new() { Slot = 5, Name = "Amia",   Job = "Counter-Hunter" },
-            new() { Slot = 6, Name = "Kain",   Job = null },
-            new() { Slot = 7, Name = "Shir",   Job = null },
+            new() { Slot = 6, Name = "Keinz",   Job = "Wrecker" },
+            new() { Slot = 7, Name = "Silka",   Job = "Thief" },
         }
     };
 
