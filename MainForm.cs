@@ -137,6 +137,9 @@ public sealed partial class MainForm : Form
         _itemList.BackColor = Theme.SpacePanel;
         _itemList.ForeColor = Theme.TextBright;
         _itemList.Font = Theme.Body(10.5f);
+
+        _portraitPanel.BackColor = Theme.SpaceMid;
+        _picPortrait.BackColor = Theme.SpacePanel;
     }
 
     private void WireEvents()
@@ -556,6 +559,33 @@ public sealed partial class MainForm : Form
 
         _loading = false;
         RenderEquipmentAndItems(c);
+        LoadPortrait(c.Name);
+    }
+
+    /// <summary>
+    /// Shows the selected character's portrait from a <c>portraits/&lt;Name&gt;.png</c> file
+    /// next to the executable (user-swappable, like psg2_items.json). Missing or
+    /// unreadable files just leave the panel blank.
+    /// </summary>
+    private void LoadPortrait(string name)
+    {
+        _picPortrait.Image?.Dispose();
+        _picPortrait.Image = null;
+
+        string path = Path.Combine(AppContext.BaseDirectory, "portraits", name + ".png");
+        if (!File.Exists(path))
+        {
+            return;
+        }
+
+        try
+        {
+            // Decode into a detached copy so the file isn't locked for the app's lifetime.
+            using var ms = new MemoryStream(File.ReadAllBytes(path));
+            using var loaded = Image.FromStream(ms);
+            _picPortrait.Image = new Bitmap(loaded);
+        }
+        catch { /* leave blank on any decode error */ }
     }
 
     private void UpdateState()

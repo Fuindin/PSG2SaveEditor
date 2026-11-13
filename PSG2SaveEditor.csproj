@@ -25,4 +25,9 @@
     <None Update="psg2_items.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- Character portraits, copied next to the exe (user-swappable per character). -->
+  <ItemGroup>
+    <None Update="portraits\*.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
