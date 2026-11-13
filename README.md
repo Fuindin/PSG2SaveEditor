@@ -40,9 +40,15 @@ Anchored empirically against known in-game values. All character fields are **u3
 * **Inventory**: array at absolute `0x247B14`, stride 4, each entry `[id u16][flags u16]`,
   ending at the first empty entry. Holds every owned item (equipped and bag). An item is
   **equipped** iff `(flags & 0x3F) != 0x3F`; then `owner = flags & 0x3F` (character index)
-  and `slot = (flags >> 6) & 7` (0 Head, 1 Body, 2 R.Hand, 3 L.Hand, 4 Feet). Confirmed
-  item IDs so far: 1 Knife, 53 Steel Claw, 66 Ribbon, 82 Carbon Suit, 83 Carbon Vest,
-  128 Leather Shoes, 129 Espadrilles, 138 Monomate.
+  and `slot = (flags >> 6) & 7` (0 Head, 1 Body, 2 R.Hand, 3 L.Hand, 4 Feet). The id field can
+  carry flag bits above the base item ID (e.g. `0x0429` = Fire Slicer, `0x4014` = Silent Shot);
+  the base ID is `id & 0xFF`.
+* **Item table**: all 185 items (IDs 1–185) come from the game's own item-definition table in
+  the executable (0x20-byte records at ELF file offset `0x18B1B0`; record index = item ID, word 0 =
+  name pointer, u16 at +4 = equip kind: 0 item, 1 one-handed, 2 two-handed, 3 head, 4 shield,
+  5 body, 6 feet). English names are read from the translation patch's copy of that table;
+  96 are exact, the rest contain a dictionary-compressed word that's a best-effort translation
+  (marked `(?)` in `Game/Psg2Items.cs`).
 
 Offsets are overridable at runtime via a `psg2_layout.json` placed next to the executable.
 
@@ -55,8 +61,8 @@ weapons) and decode exactly.
 ## Still display-only / not yet mapped
 
 * **Equipment & items are read-only** for now (display only); editing them is a possible extension.
-* The complete **item-ID → name** table is unknown — unmapped IDs render as `Item #N`.
-  You can name items yourself by editing **`psg2_items.json`** next to the exe (a simple
+* All 185 item IDs are named. A few English names are best guesses (see above);
+  you can correct them by editing **`psg2_items.json`** next to the exe (a simple
   `{ "id": "Name" }` map); your entries override/extend the built-in table, no rebuild needed.
 * The **Job** field is shown from a known table (only Eusis = *Agent*, Nei = *—* confirmed),
   not read from the save.
